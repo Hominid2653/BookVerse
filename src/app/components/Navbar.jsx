@@ -9,7 +9,7 @@ function Navbar() {
   }
 
   return (
-    <header className="w-full flex flex-col md:flex-row items-center justify-between gap-4 p-5 bg-white border border-slate-200 rounded-[28px] shadow-[0_10px_30px_rgba(15,34,69,0.08)]">
+    <header className="sticky top-0 z-40 w-full flex flex-col md:flex-row items-center justify-between gap-4 p-5 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-[28px] shadow-[0_10px_30px_rgba(15,34,69,0.08)]">
       <div className="flex items-center gap-3 text-slate-950 font-semibold">
         <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl border-2 border-slate-950 text-sm tracking-[0.18em]">
           |||
