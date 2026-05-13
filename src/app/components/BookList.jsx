@@ -75,7 +75,7 @@ export default function BookList({
 
       {loadingInitial && books.length === 0 ? (
         <div
-          className={gridClassName + (title ? '' : '')}
+          className={gridClassName}
           role="status"
           aria-label="Loading books"
         >

@@ -44,8 +44,8 @@ function normalizeSearchResult(doc) {
     snippet: Array.isArray(doc.first_sentence)
       ? doc.first_sentence[0]
       : typeof doc.first_sentence === 'string'
-      ? doc.first_sentence
-      : '',
+        ? doc.first_sentence
+        : '',
 
     source: 'openlibrary',
   }
@@ -80,6 +80,17 @@ async function searchBooks(query, options = {}) {
   const hasMore = offset + books.length < total
 
   return { books, hasMore, total }
+}
+
+function parsePublishYear(work) {
+  if (typeof work.first_publish_year === 'number') {
+    return String(work.first_publish_year)
+  }
+  if (work.first_publish_date) {
+    const m = String(work.first_publish_date).match(/\b(18|19|20)\d{2}\b/)
+    if (m) return m[0]
+  }
+  return null
 }
 
 async function getBookDetails(workId) {
@@ -133,8 +144,12 @@ async function getBookDetails(workId) {
 
     firstPublishDate: work.first_publish_date || null,
 
+    publishedYear: parsePublishYear(work),
+
     excerpts: Array.isArray(work.excerpts)
-      ? work.excerpts.map((item) => item.comment || item.text)
+      ? work.excerpts
+          .map((item) => item.comment || item.text)
+          .filter(Boolean)
       : [],
 
     source: 'openlibrary',

@@ -1,8 +1,44 @@
+import { useEffect, useState } from 'react'
 import BookList from '../components/BookList'
+import { searchBooks } from '../../services/bookApi'
 import { useInfiniteBooks } from '../../hooks/useInfiniteBooks'
 
+const RECOMMENDED_MAX = 12
+
 export default function Home() {
-  const recommended = useInfiniteBooks('fiction', 12)
+  const [recommendedBooks, setRecommendedBooks] = useState([])
+  const [recommendedLoading, setRecommendedLoading] = useState(true)
+  const [recommendedError, setRecommendedError] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    ;(async () => {
+      setRecommendedLoading(true)
+      setRecommendedError(null)
+      try {
+        const { books } = await searchBooks('fiction', {
+          limit: RECOMMENDED_MAX,
+          offset: 0,
+        })
+        if (!cancelled) {
+          setRecommendedBooks(books.slice(0, RECOMMENDED_MAX))
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setRecommendedError(e)
+          setRecommendedBooks([])
+        }
+      } finally {
+        if (!cancelled) setRecommendedLoading(false)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const trending = useInfiniteBooks('bestseller', 12)
 
   return (
@@ -19,12 +55,12 @@ export default function Home() {
 
       <BookList
         title="Recommended For You"
-        books={recommended.books}
-        hasMore={recommended.hasMore}
-        loadingInitial={recommended.loadingInitial}
-        loadingMore={recommended.loadingMore}
-        error={recommended.error}
-        onLoadMore={recommended.loadMore}
+        books={recommendedBooks}
+        hasMore={false}
+        loadingInitial={recommendedLoading}
+        loadingMore={false}
+        error={recommendedError}
+        initialSkeletonCount={RECOMMENDED_MAX}
       />
       <BookList
         title="Trending Now"
