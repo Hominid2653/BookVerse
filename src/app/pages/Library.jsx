@@ -1,10 +1,115 @@
+import { useCallback, useMemo, useState } from 'react'
+import BookshelfIcon from '../components/BookshelfIcon'
+import LibraryBookItem from '../components/LibraryBookItem'
+import {
+  getSavedLibrary,
+  ReadingStatus,
+  removeBookFromLibrary,
+  toggleBookFavorite,
+  updateBookStatus,
+} from '../../utils/localStorage'
+
+const TABS = [
+  { status: ReadingStatus.WANT_TO_READ, label: 'Want to Read' },
+  { status: ReadingStatus.CURRENTLY_READING, label: 'Reading' },
+  { status: ReadingStatus.FINISHED, label: 'Finished' },
+]
+
 export default function Library() {
+  const [libraryTick, setLibraryTick] = useState(0)
+
+  const library = useMemo(() => getSavedLibrary(), [libraryTick])
+
+  const refresh = useCallback(() => {
+    setLibraryTick((n) => n + 1)
+  }, [])
+
+  const [activeStatus, setActiveStatus] = useState(ReadingStatus.WANT_TO_READ)
+
+  const booksInTab = useMemo(
+    () => library.filter((book) => book.status === activeStatus),
+    [library, activeStatus],
+  )
+
+  const handleStatusChange = (bookId, status) => {
+    updateBookStatus(bookId, status)
+    refresh()
+  }
+
+  const handleToggleFavorite = (bookId) => {
+    toggleBookFavorite(bookId)
+    refresh()
+  }
+
+  const handleRemove = (bookId) => {
+    removeBookFromLibrary(bookId)
+    refresh()
+  }
+
   return (
-    <main className="px-6 pb-10 pt-8">
-      <h1 className="text-3xl font-semibold text-slate-950">My Library</h1>
-      <p className="mt-3 text-slate-600">Saved books and reading progress will appear here.</p>
-      <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-slate-500">Your shelf is currently empty. Add books from the home or search pages.</p>
+    <main className="min-h-[calc(100dvh-8rem)] bg-white px-6 pb-16 pt-8">
+      <div className="mx-auto max-w-3xl">
+        <header className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center text-violet-600" aria-hidden>
+            <BookshelfIcon className="h-8 w-8" />
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">My Library</h1>
+        </header>
+
+        <div className="mt-8 border-b border-slate-200">
+          <nav className="flex gap-8 sm:gap-10" aria-label="Library shelves">
+            {TABS.map((tab) => {
+              const isActive = activeStatus === tab.status
+              return (
+                <button
+                  key={tab.status}
+                  type="button"
+                  onClick={() => setActiveStatus(tab.status)}
+                  className={`relative pb-3 text-sm font-medium transition sm:text-base ${
+                    isActive
+                      ? 'text-violet-600'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {tab.label}
+                  {isActive && (
+                    <span
+                      className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-violet-600"
+                      aria-hidden
+                    />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+
+        <div className="mt-10">
+          {booksInTab.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center sm:py-24">
+              <span className="text-slate-300" aria-hidden>
+                <BookshelfIcon className="h-20 w-20 sm:h-24 sm:w-24" />
+              </span>
+              <p className="mt-6 text-lg font-semibold text-slate-700">No books in this category</p>
+              <p className="mt-2 max-w-sm text-sm text-slate-500">
+                Start adding books to your library to see them here
+              </p>
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {booksInTab.map((book) => (
+                <li key={book.id}>
+                  <LibraryBookItem
+                    book={book}
+                    onToggleFavorite={handleToggleFavorite}
+                    onStatusChange={handleStatusChange}
+                    onRemove={handleRemove}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </main>
   )

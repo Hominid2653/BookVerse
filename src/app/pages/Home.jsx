@@ -1,11 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import BookList from '../components/BookList'
 import { searchBooks } from '../../services/bookApi'
+import {
+  getRecommendationSearchQuery,
+  hasTasteProfile,
+  subscribeLikesTaste,
+} from '../../utils/localStorage'
 import { useInfiniteBooks } from '../../hooks/useInfiniteBooks'
 
 const RECOMMENDED_MAX = 12
 
 export default function Home() {
+  const tasteQuery = useSyncExternalStore(
+    subscribeLikesTaste,
+    getRecommendationSearchQuery,
+    () => 'fiction',
+  )
+
+  const tastePersonalized = useSyncExternalStore(
+    subscribeLikesTaste,
+    hasTasteProfile,
+    () => false,
+  )
+
   const [recommendedBooks, setRecommendedBooks] = useState([])
   const [recommendedLoading, setRecommendedLoading] = useState(true)
   const [recommendedError, setRecommendedError] = useState(null)
@@ -17,7 +34,7 @@ export default function Home() {
       setRecommendedLoading(true)
       setRecommendedError(null)
       try {
-        const { books } = await searchBooks('fiction', {
+        const { books } = await searchBooks(tasteQuery, {
           limit: RECOMMENDED_MAX,
           offset: 0,
         })
@@ -37,7 +54,7 @@ export default function Home() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [tasteQuery])
 
   const trending = useInfiniteBooks('bestseller', 12)
 
@@ -51,6 +68,11 @@ export default function Home() {
         <p className="text-base leading-7 text-slate-600 sm:text-lg">
           Explore carefully selected reads from your personal library, tailored recommendations, and trending stories.
         </p>
+        {tastePersonalized && (
+          <p className="text-sm font-medium text-violet-700">
+            Your &ldquo;Recommended for you&rdquo; picks follow subjects from books you&apos;ve liked.
+          </p>
+        )}
       </div>
 
       <BookList

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import BookLikeButton from '../components/BookLikeButton'
 import { getBookDetails, PLACEHOLDER_COVER_URL } from '../../services/bookApi'
 import {
   addBookToLibrary,
@@ -7,6 +8,7 @@ import {
   isBookInLibrary,
   ReadingStatus,
   removeBookFromLibrary,
+  toggleBookFavorite,
   updateBookStatus,
 } from '../../utils/localStorage'
 
@@ -118,6 +120,7 @@ export default function BookDetails() {
       title: book.title,
       author: authorsLabel,
       image: primaryCover,
+      subjects: Array.isArray(book.subjects) ? book.subjects : [],
     })
     refreshLibrary()
   }
@@ -133,6 +136,14 @@ export default function BookDetails() {
     updateBookStatus(book.id, event.target.value)
     refreshLibrary()
   }
+
+  const handleFavoriteToggle = () => {
+    if (!book) return
+    toggleBookFavorite(book.id)
+    refreshLibrary()
+  }
+
+  const isFavoriteRead = Boolean(savedEntry?.favorite)
 
   return (
     <main className="px-6 pb-16 pt-8">
@@ -204,6 +215,16 @@ export default function BookDetails() {
                 </header>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  <BookLikeButton
+                    book={{
+                      id: book.id,
+                      title: book.title,
+                      author: authorsLabel,
+                      image: primaryCover,
+                      subjects: book.subjects,
+                    }}
+                    className="min-w-[9rem] sm:min-w-[10rem]"
+                  />
                   {!inLibrary ? (
                     <button
                       type="button"
@@ -228,6 +249,34 @@ export default function BookDetails() {
                           ))}
                         </select>
                       </label>
+                      <button
+                        type="button"
+                        onClick={handleFavoriteToggle}
+                        className={`inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition ${
+                          isFavoriteRead
+                            ? 'border-violet-500 bg-violet-50 text-violet-700'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-700'
+                        }`}
+                        aria-pressed={isFavoriteRead}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" aria-hidden>
+                          {isFavoriteRead ? (
+                            <path
+                              fill="currentColor"
+                              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                            />
+                          ) : (
+                            <path
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.65"
+                              strokeLinejoin="round"
+                              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                            />
+                          )}
+                        </svg>
+                        Favorite read
+                      </button>
                       <button
                         type="button"
                         onClick={handleRemove}

@@ -2,7 +2,7 @@ const OPEN_LIBRARY_SEARCH_URL = 'https://openlibrary.org/search.json'
 const OPEN_LIBRARY_WORKS_URL = 'https://openlibrary.org/works'
 const OPEN_LIBRARY_AUTHOR_URL = 'https://openlibrary.org'
 
-/** Shared placeholder when no cover is available (UI + API normalization). */
+/** Shared placeholder when no cover is available */
 export const PLACEHOLDER_COVER_URL =
   'https://via.placeholder.com/300x450?text=No+Cover'
 
@@ -47,6 +47,10 @@ function normalizeSearchResult(doc) {
         ? doc.first_sentence
         : '',
 
+    subjects: Array.isArray(doc.subject)
+      ? doc.subject.filter(Boolean).slice(0, 24)
+      : [],
+
     source: 'openlibrary',
   }
 }
@@ -70,7 +74,7 @@ async function searchBooks(query, options = {}) {
   const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error('Book API search request failed')
+    throw new Error('Book search failed')
   }
 
   const data = await response.json()
