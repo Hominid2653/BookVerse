@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { PLACEHOLDER_COVER_URL } from '../../services/bookApi'
 import { addBookToLibrary, isBookInLibrary } from '../../utils/localStorage'
 
 export default function BookCard({ id, image, title, author }) {
@@ -12,16 +13,23 @@ export default function BookCard({ id, image, title, author }) {
   return (
     <Link to={`/book/${id}`} className="group block">
       <article className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+        
         <div className="aspect-[4/5] overflow-hidden bg-slate-950">
           <img
-            src={image}
+            src={image || PLACEHOLDER_COVER_URL}
             alt={`Cover of ${title}`}
+            loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            onError={(e) => {
+              e.target.src = PLACEHOLDER_COVER_URL
+            }}
           />
         </div>
+
         <div className="p-5">
           <p className="text-sm font-medium text-slate-500">{author}</p>
           <h3 className="mt-3 text-lg font-semibold text-slate-950">{title}</h3>
+
           {!inLibrary && (
             <button
               onClick={handleAddToLibrary}
