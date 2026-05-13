@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
-function Navbar() {
+export default function Navbar() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
 
@@ -77,8 +77,8 @@ function Navbar() {
         </button>
       </form>
 
-      <button
-        type="button"
+      <Link
+        to="/library"
         className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-[0_8px_20px_rgba(15,34,69,0.05)] hover:opacity-95 transition"
       >
         <span>My Library</span>
@@ -92,9 +92,7 @@ function Navbar() {
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </Link>
     </header>
   )
 }
-
-export default Navbar
