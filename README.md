@@ -132,6 +132,7 @@ bookverse/
 │   │   ├── BookList.jsx
 │   │   ├── SearchBar.jsx
 │   │   └── FlipbookReader.jsx
+|   | 
 │   │
 │   ├── pages/
 │   │   ├── Home.jsx
@@ -303,7 +304,7 @@ Deployment process:
 
 # 📋 Submission Checklist
 
-- [ ] Figma Design Link
+- [ ] Figma Design Link: https://www.figma.com/design/kxwWfFaNJtaZlVW7105L9H/Books-Library--Community-?node-id=108-238&t=dsgqxjIZOXvdBpfL-1
 - [ ] Trello/Jira Board Screenshot
 - [ ] GitHub Repository
 - [ ] Live Deployment Link
