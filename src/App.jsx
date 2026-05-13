@@ -1,19 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import Navbar from './app/components/Navbar'
+import Home from './app/pages/Home'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <><Navbar /></>
-      
-     
-
-  )
+  return <Home />
 }
 
 export default App
