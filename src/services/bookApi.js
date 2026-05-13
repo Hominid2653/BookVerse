@@ -24,7 +24,7 @@ function normalizeSearchResult(doc) {
   }
 }
 
-async function searchBooks(query, maxResults = 20) {
+async function searchBooks(query, limit = 20) {
   if (!query || !query.trim()) {
     return []
   }

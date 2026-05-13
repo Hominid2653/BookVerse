@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react'
-import Navbar from '../components/Navbar'
-=======
->>>>>>> development
 import BookList from '../components/BookList'
 import { searchBooks } from '../../services/bookApi'
+import { useEffect, useState } from 'react'
+
 
 export default function Home() {
   const [recommendedBooks, setRecommendedBooks] = useState([])
