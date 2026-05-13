@@ -1,4 +1,3 @@
-import Navbar from '../components/Navbar'
 import BookList from '../components/BookList'
 import heroImg from '../../assets/hero.png'
 
@@ -58,29 +57,21 @@ const trendingBooks = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,55,96,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(15,55,96,0.14),_transparent_30%),#f8fbff]">
-      <div className="w-full">
-        <div className="overflow-hidden rounded-none bg-white/95 backdrop-blur-xl">
-          <div className="px-6 py-5">
-            <Navbar />
-          </div>
-
-          <main className="px-6 pb-10 pt-8 space-y-16">
-            <div className="max-w-3xl space-y-4">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Home</p>
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                Discover your next favorite book
-              </h1>
-              <p className="text-base leading-7 text-slate-600 sm:text-lg">
-                Explore carefully selected reads from your personal library, tailored recommendations, and trending stories.
-              </p>
-            </div>
-
-            <BookList title="Recommended For You" books={recommendedBooks} />
-            <BookList title="Trending Now" books={trendingBooks} />
-          </main>
+    <div className="w-full overflow-hidden rounded-none bg-white/95 backdrop-blur-xl">
+      <main className="px-6 pb-10 pt-8 space-y-16">
+        <div className="max-w-3xl space-y-4">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Home</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+            Discover your next favorite book
+          </h1>
+          <p className="text-base leading-7 text-slate-600 sm:text-lg">
+            Explore carefully selected reads from your personal library, tailored recommendations, and trending stories.
+          </p>
         </div>
-      </div>
+
+        <BookList title="Recommended For You" books={recommendedBooks} />
+        <BookList title="Trending Now" books={trendingBooks} />
+      </main>
     </div>
   )
 }

@@ -1,20 +1,50 @@
 import { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 function Navbar() {
   const [query, setQuery] = useState('')
+  const navigate = useNavigate()
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    // Search action can be wired up later
+    const trimmedQuery = query.trim()
+    if (trimmedQuery) {
+      navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`)
+    }
   }
 
   return (
     <header className="sticky top-0 z-40 w-full flex flex-col md:flex-row items-center justify-between gap-4 p-5 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-[28px] shadow-[0_10px_30px_rgba(15,34,69,0.08)]">
-      <div className="flex items-center gap-3 text-slate-950 font-semibold">
-        <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl border-2 border-slate-950 text-sm tracking-[0.18em]">
-          |||
-        </span>
-        <span className="text-base">BookVerse</span>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-8 text-slate-950">
+        <div className="flex items-center gap-3 font-semibold">
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl border-2 border-slate-950 text-sm tracking-[0.18em]">
+            |||
+          </span>
+          <span className="text-base">BookVerse</span>
+        </div>
+
+        <nav className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-600">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `rounded-full px-3 py-2 transition ${
+                isActive ? 'bg-slate-950 text-white' : 'hover:bg-slate-100'
+              }`
+            }
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/library"
+            className={({ isActive }) =>
+              `rounded-full px-3 py-2 transition ${
+                isActive ? 'bg-slate-950 text-white' : 'hover:bg-slate-100'
+              }`
+            }
+          >
+            Library
+          </NavLink>
+        </nav>
       </div>
 
       <form
