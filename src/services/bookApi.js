@@ -51,10 +51,22 @@ function normalizeSearchResult(doc) {
   }
 }
 
-async function searchBooks(query, limit = 20) {
-  if (!query || !query.trim()) return []
+/**
+ * @param {string} query
+ * @param {number | { limit?: number, offset?: number }} [options] If a number, treated as `limit` with offset 0.
+ * @returns {Promise<{ books: object[], hasMore: boolean, total: number }>}
+ */
+async function searchBooks(query, options = {}) {
+  if (!query || !query.trim()) {
+    return { books: [], hasMore: false, total: 0 }
+  }
 
-  const url = `${OPEN_LIBRARY_SEARCH_URL}?q=${encodeURIComponent(query)}&limit=${limit}`
+  const limit = typeof options === 'number' ? options : (options.limit ?? 20)
+  const offset = typeof options === 'number' ? 0 : (options.offset ?? 0)
+
+  const url = `${OPEN_LIBRARY_SEARCH_URL}?q=${encodeURIComponent(
+    query,
+  )}&limit=${limit}&offset=${offset}`
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -62,9 +74,12 @@ async function searchBooks(query, limit = 20) {
   }
 
   const data = await response.json()
-  return Array.isArray(data.docs)
-    ? data.docs.map(normalizeSearchResult)
-    : []
+  const docs = Array.isArray(data.docs) ? data.docs : []
+  const books = docs.map(normalizeSearchResult)
+  const total = typeof data.numFound === 'number' ? data.numFound : books.length
+  const hasMore = offset + books.length < total
+
+  return { books, hasMore, total }
 }
 
 async function getBookDetails(workId) {

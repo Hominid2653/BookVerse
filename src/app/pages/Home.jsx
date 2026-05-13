@@ -1,28 +1,9 @@
-import { useEffect, useState } from 'react'
 import BookList from '../components/BookList'
-import { searchBooks } from '../../services/bookApi'
+import { useInfiniteBooks } from '../../hooks/useInfiniteBooks'
 
 export default function Home() {
-  const [recommendedBooks, setRecommendedBooks] = useState([])
-  const [trendingBooks, setTrendingBooks] = useState([])
-
-  useEffect(() => {
-    const loadBooks = async () => {
-      try {
-        const recBooks = await searchBooks('fiction', 8)
-        setRecommendedBooks(recBooks.slice(0, 4))
-
-        const trendBooks = await searchBooks('bestseller', 8)
-        setTrendingBooks(trendBooks.slice(0, 4))
-      } catch (error) {
-        console.error('Failed to load books:', error)
-        setRecommendedBooks([])
-        setTrendingBooks([])
-      }
-    }
-
-    loadBooks()
-  }, [])
+  const recommended = useInfiniteBooks('fiction', 12)
+  const trending = useInfiniteBooks('bestseller', 12)
 
   return (
     <main className="px-6 pb-10 pt-8 space-y-16">
@@ -36,8 +17,24 @@ export default function Home() {
         </p>
       </div>
 
-      <BookList title="Recommended For You" books={recommendedBooks} />
-      <BookList title="Trending Now" books={trendingBooks} />
+      <BookList
+        title="Recommended For You"
+        books={recommended.books}
+        hasMore={recommended.hasMore}
+        loadingInitial={recommended.loadingInitial}
+        loadingMore={recommended.loadingMore}
+        error={recommended.error}
+        onLoadMore={recommended.loadMore}
+      />
+      <BookList
+        title="Trending Now"
+        books={trending.books}
+        hasMore={trending.hasMore}
+        loadingInitial={trending.loadingInitial}
+        loadingMore={trending.loadingMore}
+        error={trending.error}
+        onLoadMore={trending.loadMore}
+      />
     </main>
   )
 }
