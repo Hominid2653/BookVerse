@@ -58,8 +58,7 @@ const trendingBooks = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.14),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(14,74,74,0.18),_transparent_30%),linear-gradient(180deg,_#1f3b31_0%,_#153122_100%)] py-10 text-slate-950">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+   
         <div className="overflow-hidden rounded-[36px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_30px_80px_rgba(15,34,69,0.18)] backdrop-blur-xl">
           <Navbar />
 
@@ -68,7 +67,6 @@ export default function Home() {
             <BookList title="Trending Now" books={trendingBooks} />
           </main>
         </div>
-      </div>
-    </div>
+    
   )
 }
