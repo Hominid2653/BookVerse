@@ -97,6 +97,46 @@ function parsePublishYear(work) {
   return null
 }
 
+async function resolveWorkAuthors(work) {
+  if (!Array.isArray(work.authors)) return []
+
+  return Promise.all(
+    work.authors.map(async (authorRef) => {
+      if (!authorRef.author?.key) return 'Unknown Author'
+
+      const authorResponse = await fetch(
+        `${OPEN_LIBRARY_AUTHOR_URL}${authorRef.author.key}.json`
+      )
+
+      if (!authorResponse.ok) return 'Unknown Author'
+
+      const authorData = await authorResponse.json()
+      return authorData.name || 'Unknown Author'
+    }),
+  )
+}
+
+/** Best-effort Internet Archive identifier from linked editions (enables embed reader). */
+async function findInternetArchiveId(workId) {
+  try {
+    const response = await fetch(
+      `https://openlibrary.org/works/${encodeURIComponent(workId)}/editions.json?limit=40`,
+    )
+    if (!response.ok) return null
+    const data = await response.json()
+    for (const ed of data.entries || []) {
+      if (ed.ocaid) return String(ed.ocaid).trim()
+      const ia = ed.identifiers?.internet_archive
+      if (Array.isArray(ia) && ia[0]) return String(ia[0]).trim()
+      if (typeof ia === 'string' && ia.trim()) return ia.trim()
+      if (ed.ia_box_id) return String(ed.ia_box_id).trim()
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
 async function getBookDetails(workId) {
   if (!workId) {
     throw new Error('Missing book id for details request')
@@ -112,22 +152,10 @@ async function getBookDetails(workId) {
 
   const work = await response.json()
 
-  const authors = Array.isArray(work.authors)
-    ? await Promise.all(
-        work.authors.map(async (authorRef) => {
-          if (!authorRef.author?.key) return 'Unknown Author'
-
-          const authorResponse = await fetch(
-            `${OPEN_LIBRARY_AUTHOR_URL}${authorRef.author.key}.json`
-          )
-
-          if (!authorResponse.ok) return 'Unknown Author'
-
-          const authorData = await authorResponse.json()
-          return authorData.name || 'Unknown Author'
-        })
-      )
-    : []
+  const [authors, internetArchiveId] = await Promise.all([
+    resolveWorkAuthors(work),
+    findInternetArchiveId(workId),
+  ])
 
   return {
     id: work.key?.replace('/works/', '') || workId,
@@ -155,6 +183,8 @@ async function getBookDetails(workId) {
           .map((item) => item.comment || item.text)
           .filter(Boolean)
       : [],
+
+    internetArchiveId,
 
     source: 'openlibrary',
   }

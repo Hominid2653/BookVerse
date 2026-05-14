@@ -212,6 +212,25 @@ export default function BookDetails() {
                     {book.title}
                   </h1>
                   <p className="text-lg text-slate-600">by {authorsLabel}</p>
+                  <Link
+                    to={`/book/${encodeURIComponent(id)}/preview`}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-5 py-2.5 text-sm font-semibold text-violet-800 shadow-sm transition hover:bg-violet-100"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                      />
+                      <path strokeLinecap="round" d="M9 7h6M9 11h4" />
+                    </svg>
+                    Open book preview
+                  </Link>
                 </header>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
