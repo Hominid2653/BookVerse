@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from 'react'
-import HTMLFlipBook from 'react-pageflip'
+//import HTMLFlipBook from 'react-pageflip'
 import { PLACEHOLDER_COVER_URL } from '../../services/bookApi'
 
 const FlipPage = forwardRef(function FlipPage({ density = 'soft', children }, ref) {
