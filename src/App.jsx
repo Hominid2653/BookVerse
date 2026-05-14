@@ -3,6 +3,7 @@ import Navbar from './app/components/Navbar'
 import Home from './app/pages/Home'
 import SearchResults from './app/pages/SearchResults'
 import BookDetails from './app/pages/BookDetails'
+import BookPreview from './app/pages/BookPreview'
 import Library from './app/pages/Library'
 import NotFound from './app/pages/NotFound'
 import './App.css'
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/book/:id/preview" element={<BookPreview />} />
           <Route path="/book/:id" element={<BookDetails />} />
           <Route path="/library" element={<Library />} />
           <Route path="*" element={<NotFound />} />
