@@ -1,320 +1,408 @@
-# 📚 BookVerse
+# BookVerse
 
-BookVerse is a modern React web application that allows users to **discover, preview, and manage books in a personal digital library**. The application integrates with external book APIs to fetch real book data and provides an intuitive reading experience through a clean, responsive interface.
+BookVerse is a React mini-project for discovering books, viewing book details, previewing available content, and managing a personal reading library in the browser.
 
-Users can search for books, explore detailed information, preview pages using an embedded reader, and organize books into a personalized library.
+The app uses the Open Library API for real book data and browser `localStorage` for saved books, liked books, reading status, favorites, and recommendation preferences.
 
----
+## Project Overview
 
-# 🚀 Project Overview
+BookVerse was built to give readers a simple, account-free way to:
 
-Many readers struggle to find a **simple platform to discover books and track their reading progress** without needing to create accounts or use complex systems.
+- Search for books.
+- View detailed book information.
+- Preview book content where available.
+- Save books into a personal library.
+- Track reading progress.
+- Like books to improve recommendations.
 
-BookVerse solves this problem by providing:
+The project focuses on modular React components, clean routing, persistent browser storage, responsive UI, and unit/component testing with Vitest.
 
-- A lightweight book discovery platform
-- A personal reading tracker
-- An embedded preview reader for exploring books before committing to read them
+## Achieved Features
 
-The project focuses on **clean UI/UX, modular component architecture, and integration with external APIs**.
+### Book Discovery
 
----
+- Home page with recommended books.
+- Trending books section.
+- Infinite scrolling support for longer book lists.
+- Search from the navigation bar.
+- Search results page with pagination through scroll loading.
 
-# 🧩 Problem Statement
+### Personalized Recommendations
 
-Readers often rely on multiple platforms to discover books, preview content, and track reading progress. These fragmented systems make it difficult to manage personal reading journeys efficiently.
+- Users can like books.
+- Liked book subjects are stored as a taste profile.
+- The home page recommendation query updates based on liked subjects.
+- If no likes exist yet, recommendations fall back to general fiction.
 
-BookVerse provides a **single platform where users can search books, preview content, and manage a reading library without requiring authentication or complex setup**.
+### Book Details
 
----
+- Details page for each book.
+- Displays title, author, cover image, description, publication information, subjects/genres, and excerpts when available.
+- Long descriptions can be expanded or collapsed.
+- Users can add or remove a book from their library directly from the details page.
+- Users can like books from the details page.
 
-# 👥 User Stories
+### Book Preview
 
-- As a reader, I want to **search for books** so that I can discover new titles.
-- As a reader, I want to **view detailed book information** so that I can decide whether the book interests me.
-- As a reader, I want to **preview some pages of a book** before reading it fully.
-- As a reader, I want to **save books to my personal library** for future reference.
-- As a reader, I want to **categorize books into reading stages** (Want to Read, Currently Reading, Finished).
-- As a reader, I want to **remove books from my library** if I lose interest.
+- Preview route for each book.
+- Embedded Internet Archive reader appears when an archive identifier is available.
+- Built-in flipbook preview is generated from book descriptions and excerpts.
+- Fallback preview pages are shown when preview text is unavailable.
 
----
+### Personal Library
 
-# 🛠 Tech Stack
+- Books can be saved to a local browser library.
+- Saved books are grouped by reading status:
+  - Want to Read
+  - Currently Reading
+  - Finished
+- Users can update reading status.
+- Users can mark saved books as favorite reads.
+- Users can remove books from the library.
+- Library data persists in `localStorage`.
 
-### Frontend
-- React.js (Functional Components + Hooks)
+### Responsive UI
 
-### Styling
-- Tailwind CSS
+- Responsive layouts for mobile, tablet, and desktop screens.
+- Loading skeletons for book lists and book details.
+- Error and empty states for failed or missing data.
+- Reusable components for cards, lists, navigation, search, loading, preview, and library items.
 
-### State Management
-- React `useState`
-- React `useEffect`
+### Testing
 
-### Routing
+The project uses Vitest with React Testing Library.
+
+Current tests cover:
+
+- `BookCard` rendering, routing links, and adding books to the library.
+- `BookLikeButton` liked/unliked interactions.
+- `BookList` empty, loading, error, and completed pagination states.
+- `buildPreviewPages` and text chunking utilities.
+- `localStorage` library, favorites, reading status, likes, and recommendation query behavior.
+
+## Tech Stack
+
+- React
+- Vite
 - React Router DOM
-
-### Data Source
-External APIs such as:
-
+- Tailwind CSS
+- React PageFlip
 - Open Library API
-- Google Books API
+- Browser `localStorage`
+- Vitest
+- React Testing Library
+- Jest DOM matchers
+- User Event Testing Library
 
-### Storage
-- Browser LocalStorage (for saved books)
-
-### Deployment
-- Vercel or Netlify
-
----
-
-# ⚙️ Core Features
-
-## 🔍 Book Search
-Users can search for books using an external API.
-
-## 📖 Book Details
-Detailed book information is displayed including:
-- Title
-- Author
-- Description
-- Publication year
-- Genres
-
-## 📚 Personal Library
-Users can save books into a personal reading list.
-
-Library categories include:
-- Want to Read
-- Currently Reading
-- Finished Reading
-
-## 📑 Book Preview
-Selected books can be previewed using an embedded flipbook reader.
-
-## 🧹 Library Management
-Users can:
-- Update reading status
-- Remove books from their library
-
-## 📱 Responsive UI
-The interface adapts to desktop, tablet, and mobile devices.
-
----
-
-# 🧱 Project Architecture
-
-The application follows a **modular component structure** to ensure maintainability and scalability.
-
-Core components include:
-
-- Navbar / Sidebar
-- Home Dashboard
-- Search Results
-- Book Card Component
-- Book Details Page
-- Library Page
-- Reader Preview Component
-
----
-
-# 📂 Project Folder Structure
-
-```
-bookverse/
-│
-├── public/
-│
-├── src/
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── BookCard.jsx
-│   │   ├── BookList.jsx
-│   │   ├── SearchBar.jsx
-│   │   └── FlipbookReader.jsx
-|   | 
-│   │
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── SearchResults.jsx
-│   │   ├── BookDetails.jsx
-│   │   └── Library.jsx
-│   │
-│   ├── services/
-│   │   └── bookApi.js
-│   │
-│   ├── utils/
-│   │   └── localStorage.js
-│   │
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-│
-├── package.json
-├── README.md
-└── tailwind.config.js
-```
-
----
-
-# 🗺 Application Routes
+## Routes
 
 | Route | Description |
-|------|-------------|
-| `/` | Home page showing featured or trending books |
-| `/search` | Displays search results |
-| `/book/:id` | Displays detailed information about a book |
-| `/library` | Displays user's saved books |
+| --- | --- |
+| `/` | Home page with recommendations and trending books |
+| `/search?q=query` | Search results page |
+| `/book/:id` | Book details page |
+| `/book/:id/preview` | Book preview and flipbook page |
+| `/library` | Saved personal library |
+| `*` | Not found page |
 
----
+Sample route setup from `src/App.jsx`:
 
-# 📡 API Integration
-
-The application fetches book data from external APIs.
-
-Example endpoint:
-
+```jsx
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/search" element={<SearchResults />} />
+  <Route path="/book/:id/preview" element={<BookPreview />} />
+  <Route path="/book/:id" element={<BookDetails />} />
+  <Route path="/library" element={<Library />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>
 ```
-https://openlibrary.org/search.json?q=harry+potter
+
+## Project Structure
+
+```text
+BookVerse/
+|-- public/
+|-- src/
+|   |-- app/
+|   |   |-- components/
+|   |   |   |-- BookCard.jsx
+|   |   |   |-- BookForm.jsx
+|   |   |   |-- BookLikeButton.jsx
+|   |   |   |-- BookList.jsx
+|   |   |   |-- BookshelfIcon.jsx
+|   |   |   |-- ErrorBoundary.jsx
+|   |   |   |-- FlipbookReader.jsx
+|   |   |   |-- LibraryBookItem.jsx
+|   |   |   |-- LoadingSpinner.jsx
+|   |   |   |-- Navbar.jsx
+|   |   |   `-- SearchBar.jsx
+|   |   `-- pages/
+|   |       |-- BookDetails.jsx
+|   |       |-- BookPreview.jsx
+|   |       |-- Home.jsx
+|   |       |-- Library.jsx
+|   |       |-- NotFound.jsx
+|   |       `-- SearchResults.jsx
+|   |-- assets/
+|   |-- hooks/
+|   |   `-- useInfiniteBooks.js
+|   |-- services/
+|   |   `-- bookApi.js
+|   |-- tests/
+|   |   |-- BookCard.test.jsx
+|   |   |-- BookLikeButton.test.jsx
+|   |   |-- BookList.test.jsx
+|   |   |-- buildPreviewPages.test.js
+|   |   |-- localStorage.test.js
+|   |   `-- setup.js
+|   |-- utils/
+|   |   |-- buildPreviewPages.js
+|   |   `-- localStorage.js
+|   |-- App.jsx
+|   |-- App.css
+|   |-- index.css
+|   `-- main.jsx
+|-- index.html
+|-- package.json
+|-- vite.config.js
+`-- README.md
 ```
 
-Example fetch:
+## API Integration
+
+BookVerse uses Open Library endpoints for book search, work details, authors, covers, and linked editions.
+
+Main examples:
+
+```text
+https://openlibrary.org/search.json?q=fiction
+https://openlibrary.org/works/:workId.json
+https://covers.openlibrary.org/b/id/:coverId-L.jpg
+```
+
+The service layer in `src/services/bookApi.js` normalizes API responses into book objects used by the UI.
+
+Sample search request:
 
 ```javascript
-fetch(`https://openlibrary.org/search.json?q=${query}`)
-  .then(res => res.json())
-  .then(data => setBooks(data.docs))
+const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`
+const response = await fetch(url)
+const data = await response.json()
 ```
 
----
-
-# 💾 Local Storage Example
-
-Saved books are stored in the browser using `localStorage`.
-
-Example:
+Sample normalized book object used by the interface:
 
 ```javascript
-localStorage.setItem("library", JSON.stringify(savedBooks))
+{
+  id: 'OL45804W',
+  title: 'The Hobbit',
+  author: 'J. R. R. Tolkien',
+  image: 'https://covers.openlibrary.org/b/id/coverId-L.jpg',
+  publishedYear: 1937,
+  subjects: ['Fantasy', 'Adventure'],
+}
 ```
 
-Retrieve saved books:
+## Local Storage
+
+The app stores user data in the browser with two main keys:
+
+- `bookverse-library` for saved books, reading status, and favorite reads.
+- `bookverse-likes-taste` for liked books and subject scores used by recommendations.
+
+This means the app works without user authentication, but saved data is local to the current browser.
+
+Sample localStorage write:
 
 ```javascript
-const library = JSON.parse(localStorage.getItem("library")) || []
+window.localStorage.setItem('bookverse-library', JSON.stringify(books))
 ```
 
----
+Sample localStorage read:
 
-# 🧪 API Testing
-
-Endpoints can be tested using **Postman** before frontend integration.
-
-Tested operations include:
-
-- GET requests for book search
-- Handling empty responses
-- Handling API errors
-
----
-
-# 🔧 Development Workflow
-
-## Phase 1 — UI/UX Design
-High fidelity designs created in **Figma**.
-
-Focus areas:
-- Book browsing experience
-- Reader preview interface
-- Library organization
-
-## Phase 2 — Project Management
-
-Kanban board used to track progress.
-
-Columns include:
-
-- To Do
-- In Progress
-- Done
-
-Weekly sprints used to implement features.
-
-## Phase 3 — Development
-
-Development process:
-
-1. Setup React project
-2. Configure routing
-3. Integrate external book API
-4. Implement UI components
-5. Implement library management with localStorage
-6. Add reader preview feature
-
----
-
-# 🔀 GitHub Best Practices
-
-### Branching Strategy
-
-Main branch is protected.
-
-Feature branches include:
-
-```
-feature/book-search
-feature/library-page
-feature/reader-preview
-feature/ui-components
+```javascript
+const savedBooks =
+  JSON.parse(window.localStorage.getItem('bookverse-library')) || []
 ```
 
-### Pull Requests
+## CRUD Operations
 
-All features are merged using pull requests.
+BookVerse implements CRUD-style behavior through a combination of the Open Library API and browser `localStorage`.
 
-### Commit Message Style
+| Operation | How It Is Implemented |
+| --- | --- |
+| Create | A user adds a book to their personal library. The app creates a new saved book record in `localStorage` using `addBookToLibrary()`. Liking a book also creates or updates a taste-profile entry with `toggleBookLike()`. |
+| Read | The app reads book data from the Open Library API using `searchBooks()` and `getBookDetails()`. It also reads saved library data from `localStorage` using `getSavedLibrary()`, `isBookInLibrary()`, and `isBookLiked()`. |
+| Update | A user can update a saved book's reading status with `updateBookStatus()`, mark or unmark it as a favorite with `toggleBookFavorite()`, and update recommendation preferences by liking or unliking books with `toggleBookLike()`. |
+| Delete | A user can remove a book from the library with `removeBookFromLibrary()`. Unliking a book removes that liked entry from the taste profile and subtracts its subject scores. |
 
-Examples:
+The CRUD logic is centralized in `src/utils/localStorage.js`, while the API read operations are handled in `src/services/bookApi.js`. This keeps user-owned data separate from external book data.
 
+### CRUD Flow Examples
+
+Adding a book to the library:
+
+```javascript
+addBookToLibrary({
+  id: book.id,
+  title: book.title,
+  author: authorsLabel,
+  image: primaryCover,
+  subjects: book.subjects,
+})
 ```
-feat: implement book search functionality
-feat: add personal library feature
-fix: resolve API fetch error
-style: update UI layout
+
+Checking whether a book already exists in the library:
+
+```javascript
+const inLibrary = isBookInLibrary(book.id)
 ```
 
----
+Updating reading progress:
 
-# 🚀 Deployment
+```javascript
+updateBookStatus(book.id, 'Currently Reading')
+```
 
-The application can be deployed using:
+Marking a book as a favorite read:
 
-### Vercel
-or
+```javascript
+toggleBookFavorite(book.id)
+```
 
-### Netlify
+Removing a saved book:
 
-Deployment process:
+```javascript
+removeBookFromLibrary(book.id)
+```
 
-1. Push project to GitHub
-2. Connect repository to deployment platform
-3. Automatic builds triggered on commits
+Liking a book for recommendations:
 
----
+```javascript
+toggleBookLike({
+  id: book.id,
+  subjects: book.subjects,
+})
+```
 
-# 📋 Submission Checklist
+Reading the recommendation query:
 
-- [ ] Figma Design Link: https://www.figma.com/design/kxwWfFaNJtaZlVW7105L9H/Books-Library--Community-?node-id=108-238&t=dsgqxjIZOXvdBpfL-1
-- [ ] Trello/Jira Board Screenshot
-- [ ] GitHub Repository
-- [ ] Live Deployment Link
-- [ ] External API Documentation
+```javascript
+const query = getRecommendationSearchQuery()
+```
 
----
+## Getting Started
 
-# 🙌 Acknowledgements
+Install dependencies:
 
-BookVerse uses publicly available data from open book APIs to provide book discovery and preview functionality.
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+## Testing
+
+Run the full test suite:
+
+```bash
+npm run test:run
+```
+
+Run tests in watch mode:
+
+```bash
+npm test
+```
+
+Open the Vitest UI:
+
+```bash
+npm run test:ui
+```
+
+Sample component test:
+
+```jsx
+test('renders book title and author', () => {
+  render(
+    <MemoryRouter>
+      <BookCard
+        id="1"
+        title="Atomic Habits"
+        author="James Clear"
+        image="https://via.placeholder.com/300"
+      />
+    </MemoryRouter>
+  )
+
+  expect(screen.getByText('Atomic Habits')).toBeInTheDocument()
+  expect(screen.getByText('James Clear')).toBeInTheDocument()
+})
+```
+
+Sample utility test:
+
+```javascript
+test('addBookToLibrary saves a new book with default reading metadata', () => {
+  const nextLibrary = addBookToLibrary({ id: 'OL100W', title: 'Parable of the Sower' })
+
+  expect(nextLibrary[0]).toMatchObject({
+    id: 'OL100W',
+    status: 'Want to Read',
+    favorite: false,
+  })
+})
+```
+
+## Development Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Create a production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run Vitest in watch mode |
+| `npm run test:run` | Run Vitest once |
+| `npm run test:ui` | Open Vitest UI |
+
+## User Stories Completed
+
+- As a reader, I can search for books so that I can discover new titles.
+- As a reader, I can view detailed book information before deciding what to read.
+- As a reader, I can preview book content through a flipbook or archive embed.
+- As a reader, I can save books to my personal library.
+- As a reader, I can categorize books by reading status.
+- As a reader, I can favorite books I have saved.
+- As a reader, I can remove books from my library.
+- As a reader, I can like books so that recommendations become more relevant.
+
+## Submission Notes
+
+- Figma design: https://www.figma.com/design/kxwWfFaNJtaZlVW7105L9H/Books-Library--Community-?node-id=108-238&t=dsgqxjIZOXvdBpfL-1
+- API used: Open Library API
+- Storage used: Browser `localStorage`
+- Testing framework: Vitest
 
 
-[Test Git Fetch]
+## Acknowledgements
+
+BookVerse uses publicly available data from Open Library and Internet Archive links provided through Open Library records.
