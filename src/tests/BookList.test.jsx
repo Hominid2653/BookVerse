@@ -3,7 +3,6 @@ import { MemoryRouter } from 'react-router-dom'
 import BookList from '../app/components/BookList'
 
 beforeEach(() => {
-  // BookList renders BookCard children, which may read from localStorage.
   window.localStorage.clear()
 })
 
