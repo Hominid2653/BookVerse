@@ -6,6 +6,9 @@ const MAX_TEXT_PAGES = 22
  * @param {number} maxLen
  * @returns {string[]}
  */
+
+// Split on paragraph breaks and avoid cutting sentences in half, -Not perfect. 
+//The goal is just to create reasonably sized chunks of text for the flipbook pages.
 export function chunkLongText(text, maxLen = 440) {
   const t = String(text || '')
     .replace(/\s+/g, ' ')
@@ -31,13 +34,18 @@ export function chunkLongText(text, maxLen = 440) {
  * Build flipbook page descriptors from Open Library work fields.
  * @param {{ title?: string, description?: string, excerpts?: string[], coverImages?: string[] }} book
  */
+
+// The flipbook preview is a mix of description, excerpts, and cover images. The text is chunked into pages with a max length, and we include the cover as the first page when available. 
+// If there are no text fields, we show a default message. 
+// We also add a final page to encourage users to explore more titles or view the full record.
 export function buildPreviewPages(book) {
   const pages = []
   const cover = book.coverImages?.[0]
   if (cover) {
     pages.push({ type: 'cover', src: cover, alt: book.title || 'Cover' })
   }
-
+// We merge the description and excerpts, then chunk it into pages. 
+// This way we can show a mix of description and excerpts without worrying about how many of each there are.
   const merged = [book.description, ...(Array.isArray(book.excerpts) ? book.excerpts : [])]
     .filter(Boolean)
     .join('\n\n')
