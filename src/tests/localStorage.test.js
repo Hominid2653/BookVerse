@@ -2,6 +2,7 @@ import {
   ReadingStatus,
   addBookToLibrary,
   getRecommendationSearchQuery,
+  getRecommendationSearchTerms,
   getSavedLibrary,
   hasTasteProfile,
   isBookInLibrary,
@@ -71,14 +72,24 @@ test('toggleBookLike stores liked books and builds a ranked recommendation query
     subjects: ['Magic', 'Adventure'],
   })
 
-  // Subject scores are ranked and converted into the Open Library search query.
+  // Subject scores are ranked and converted into recommendation search terms.
   expect(isBookLiked('book-a')).toBe(true)
   expect(hasTasteProfile()).toBe(true)
-  expect(getRecommendationSearchQuery()).toBe('magic OR fantasy OR adventure')
+  expect(getRecommendationSearchQuery()).toBe('magic|adventure|fantasy')
+  expect(getRecommendationSearchTerms()).toEqual(['magic', 'adventure', 'fantasy'])
 
   // Unliking a book subtracts the topic scores that book contributed.
   toggleBookLike({ id: 'book-a' })
 
   expect(isBookLiked('book-a')).toBe(false)
-  expect(getRecommendationSearchQuery()).toBe('magic OR adventure')
+  expect(getRecommendationSearchQuery()).toBe('adventure|magic')
+})
+
+test('recommendations ignore generic Open Library subjects when better topics exist', () => {
+  toggleBookLike({
+    id: 'book-c',
+    subjects: ['Accessible book', 'Protected DAISY', 'Romance', 'Historical Fiction'],
+  })
+
+  expect(getRecommendationSearchTerms()).toEqual(['historical fiction', 'romance'])
 })

@@ -99,9 +99,20 @@ export function clearLibrary() {
   writeLocalStorage([])
 }
 
-/* ---- Likes & taste (drives “Recommended for you” search query) ---- */
+//Recommendations algorithm
 
 const LIKES_TASTE_KEY = 'bookverse-likes-taste'
+const RECOMMENDATION_TERM_LIMIT = 3
+const IGNORED_RECOMMENDATION_TOPICS = new Set([
+  'accessible book',
+  'protected daisy',
+  'in library',
+  'overdrive',
+  'internet archive',
+  'juvenile literature',
+  'literature',
+  'open library staff picks',
+])
 
 const likeListeners = new Set()
 let storageListenerBound = false
@@ -160,18 +171,40 @@ function normalizeTopicKey(topic) {
   return String(topic).trim().toLowerCase()
 }
 
+function isUsefulRecommendationTopic(topic) {
+  const key = normalizeTopicKey(topic)
+  if (!key) return false
+  if (IGNORED_RECOMMENDATION_TOPICS.has(key)) return false
+  if (/^\d+$/.test(key)) return false
+  return true
+}
+
+function getRankedRecommendationTopics() {
+  const { topicScores } = readLikesTaste()
+  const ranked = Object.entries(topicScores)
+    .filter(([topic, score]) => score > 0 && isUsefulRecommendationTopic(topic))
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+
+  if (ranked.length > 0) return ranked.map(([topic]) => topic)
+
+  return Object.entries(topicScores)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([topic]) => topic)
+}
+
 export function hasTasteProfile() {
   const { topicScores } = readLikesTaste()
   return Object.values(topicScores).some((score) => score > 0)
 }
 
 export function getRecommendationSearchQuery() {
-  const { topicScores } = readLikesTaste()
-  const ranked = Object.entries(topicScores).filter(([, score]) => score > 0)
-  if (ranked.length === 0) return 'fiction'
-  ranked.sort((a, b) => b[1] - a[1])
-  const top = ranked.slice(0, 4).map(([key]) => key)
-  return top.join(' OR ')
+  const top = getRankedRecommendationTopics().slice(0, RECOMMENDATION_TERM_LIMIT)
+  return top.length ? top.join('|') : 'fiction'
+}
+
+export function getRecommendationSearchTerms() {
+  return getRecommendationSearchQuery().split('|').filter(Boolean)
 }
 
 export function isBookLiked(bookId) {
@@ -189,9 +222,13 @@ export function toggleBookLike(book) {
   if (!id) return readLikesTaste()
 
   const rawSubjects = Array.isArray(book.subjects) ? book.subjects : []
-  const topicKeys = Array.from(
+  const preferredTopicKeys = Array.from(
+    new Set(rawSubjects.map(normalizeTopicKey).filter(isUsefulRecommendationTopic)),
+  )
+  const fallbackTopicKeys = Array.from(
     new Set(rawSubjects.map(normalizeTopicKey).filter(Boolean)),
-  ).slice(0, 8)
+  )
+  const topicKeys = (preferredTopicKeys.length ? preferredTopicKeys : fallbackTopicKeys).slice(0, 8)
 
   const data = readLikesTaste()
   const idx = data.entries.findIndex((entry) => entry.id === id)
