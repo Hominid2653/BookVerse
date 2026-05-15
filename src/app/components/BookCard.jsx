@@ -18,9 +18,10 @@ export default function BookCard({ id, image, title, author, subjects = [] }) {
       if (addedTimerRef.current) clearTimeout(addedTimerRef.current)
     }
   }, [])
-
+// The card action is to add the book to the library, so we prevent the default link navigation when clicking it.
   const handleAddToLibrary = (e) => {
     e.preventDefault()
+    // Stopping propagation prevents the click from reaching the BookLikeButton, which has its own separate action.
     e.stopPropagation()
     addBookToLibrary({ id, title, author, image, subjects })
     setInLibrary(true)
@@ -37,7 +38,9 @@ export default function BookCard({ id, image, title, author, subjects = [] }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
       <Link to={`/book/${encodeURIComponent(id)}`} className="group block">
+        
         <div className="aspect-[3/4] overflow-hidden bg-slate-950">
+          
           <img
             src={image || PLACEHOLDER_COVER_URL}
             alt={`Cover of ${title}`}

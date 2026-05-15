@@ -11,6 +11,8 @@ import { useInfiniteBooks } from '../../hooks/useInfiniteBooks'
 
 const RECOMMENDED_MAX = 12
 const RECOMMENDATION_TERMS_MAX = 3
+const RECOMMENDATIONS_CACHE_TTL = 10 * 60 * 1000
+const recommendationsCache = new Map()
 
 function mergeUniqueBooks(bookGroups, maxBooks) {
   const seen = new Set()
@@ -49,10 +51,28 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false
+    const cacheKey = tasteQuery
+    const cached = recommendationsCache.get(cacheKey)
+    const cacheFresh =
+      cached && Date.now() - cached.cachedAt <= RECOMMENDATIONS_CACHE_TTL
 
-    ;(async () => {
+    if (cacheFresh) {
+      setRecommendedBooks(cached.books)
+      setRecommendedLoading(false)
+      setRecommendedError(null)
+      return () => {
+        cancelled = true
+      }
+    } else if (cached) {
+      setRecommendedBooks(cached.books)
+      setRecommendedLoading(false)
+      setRecommendedError(null)
+    } else {
       setRecommendedLoading(true)
       setRecommendedError(null)
+    }
+
+    ;(async () => {
       try {
         const terms = getRecommendationSearchTerms().slice(0, RECOMMENDATION_TERMS_MAX)
         const personalized = terms.length > 0 && terms[0] !== 'fiction'
@@ -71,11 +91,15 @@ export default function Home() {
         )
         if (!cancelled) {
           setRecommendedBooks(books)
+          recommendationsCache.set(cacheKey, {
+            books,
+            cachedAt: Date.now(),
+          })
         }
       } catch (e) {
         if (!cancelled) {
           setRecommendedError(e)
-          setRecommendedBooks([])
+          if (!cached) setRecommendedBooks([])
         }
       } finally {
         if (!cancelled) setRecommendedLoading(false)
