@@ -116,7 +116,7 @@ async function resolveWorkAuthors(work) {
   )
 }
 
-/** Best-effort Internet Archive identifier from linked editions (enables embed reader). */
+//Enables Embed reader from Internet Archive when available. Not all editions have anID, so we check multiple fields and return the first valid one we find.
 async function findInternetArchiveId(workId) {
   try {
     const response = await fetch(

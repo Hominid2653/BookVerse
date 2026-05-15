@@ -1,11 +1,14 @@
+// Local storage utilities for managing the user's library and likes/taste profile.
 const LIBRARY_KEY = 'bookverse-library'
-
+// 
 export const ReadingStatus = {
   WANT_TO_READ: 'Want to Read',
   CURRENTLY_READING: 'Currently Reading',
   FINISHED: 'Finished',
 }
-
+// We store the user's saved library as an array of book objects with some additional metadata (status, favorite). 
+// The "likes & taste" profile is stored separately and tracks which books the user has liked, along with topic scores for recommendations. 
+// Both are persisted in localStorage and accessed via helper functions that handle JSON parsing/stringifying and provide a simple API for the rest of the app.
 function readLocalStorage() {
   if (typeof window === 'undefined' || !window.localStorage) {
     return []
@@ -31,7 +34,7 @@ function writeLocalStorage(value) {
     console.error('Unable to save library to localStorage', error)
   }
 }
-
+// Library Management to get saved books etc
 export function getSavedLibrary() {
   return readLocalStorage()
 }
