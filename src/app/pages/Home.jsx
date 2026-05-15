@@ -3,12 +3,32 @@ import BookList from '../components/BookList'
 import { searchBooks } from '../../services/bookApi'
 import {
   getRecommendationSearchQuery,
+  getRecommendationSearchTerms,
   hasTasteProfile,
   subscribeLikesTaste,
 } from '../../utils/localStorage'
 import { useInfiniteBooks } from '../../hooks/useInfiniteBooks'
 
 const RECOMMENDED_MAX = 12
+const RECOMMENDATION_TERMS_MAX = 3
+
+function mergeUniqueBooks(bookGroups, maxBooks) {
+  const seen = new Set()
+  const merged = []
+  const longestGroup = Math.max(0, ...bookGroups.map((group) => group.length))
+
+  for (let index = 0; index < longestGroup && merged.length < maxBooks; index += 1) {
+    for (const group of bookGroups) {
+      const book = group[index]
+      if (!book || seen.has(book.id)) continue
+      seen.add(book.id)
+      merged.push(book)
+      if (merged.length === maxBooks) break
+    }
+  }
+
+  return merged
+}
 
 export default function Home() {
   const tasteQuery = useSyncExternalStore(
@@ -34,12 +54,23 @@ export default function Home() {
       setRecommendedLoading(true)
       setRecommendedError(null)
       try {
-        const { books } = await searchBooks(tasteQuery, {
-          limit: RECOMMENDED_MAX,
-          offset: 0,
-        })
+        const terms = getRecommendationSearchTerms().slice(0, RECOMMENDATION_TERMS_MAX)
+        const personalized = terms.length > 0 && terms[0] !== 'fiction'
+        const responses = await Promise.all(
+          terms.map((term) =>
+            searchBooks(term, {
+              limit: Math.ceil(RECOMMENDED_MAX / terms.length) + 3,
+              offset: 0,
+              searchBy: personalized ? 'subject' : 'q',
+            }),
+          ),
+        )
+        const books = mergeUniqueBooks(
+          responses.map((response) => response.books),
+          RECOMMENDED_MAX,
+        )
         if (!cancelled) {
-          setRecommendedBooks(books.slice(0, RECOMMENDED_MAX))
+          setRecommendedBooks(books)
         }
       } catch (e) {
         if (!cancelled) {
