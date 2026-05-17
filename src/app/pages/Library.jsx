@@ -1,34 +1,88 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import BookshelfIcon from '../components/BookshelfIcon'
 import LibraryBookItem from '../components/LibraryBookItem'
+import { getBookDetails } from '../../services/bookApi'
 import {
+  getLikedBooks,
   getSavedLibrary,
   ReadingStatus,
   removeBookFromLibrary,
+  subscribeLikesTaste,
   toggleBookFavorite,
+  toggleBookLike,
+  updateLikedBookDetails,
   updateBookStatus,
 } from '../../utils/localStorage'
+
+const LIKED_TAB = 'Liked Books'
 
 const TABS = [
   { status: ReadingStatus.WANT_TO_READ, label: 'Want to Read' },
   { status: ReadingStatus.CURRENTLY_READING, label: 'Reading' },
   { status: ReadingStatus.FINISHED, label: 'Finished' },
+  { status: LIKED_TAB, label: 'Liked' },
 ]
 
 export default function Library() {
   const [libraryTick, setLibraryTick] = useState(0)
 
   const library = useMemo(() => getSavedLibrary(), [libraryTick])
+  const likedBooks = useMemo(() => getLikedBooks(), [libraryTick])
 
   const refresh = useCallback(() => {
     setLibraryTick((n) => n + 1)
   }, [])
 
+  useEffect(() => subscribeLikesTaste(refresh), [refresh])
+
+  useEffect(() => {
+    const missingDetails = likedBooks.filter((book) => book.title === 'Liked book')
+    if (missingDetails.length === 0) return
+
+    let cancelled = false
+
+    ;(async () => {
+      const resolvedBooks = await Promise.all(
+        missingDetails.map(async (book) => {
+          try {
+            const details = await getBookDetails(book.id)
+            const author = details.authors?.filter(Boolean).join(', ') || 'Unknown Author'
+            return {
+              id: details.id || book.id,
+              title: details.title,
+              author,
+              image: details.coverImages?.[0] || book.image,
+              subjects: Array.isArray(details.subjects) ? details.subjects : book.subjects,
+            }
+          } catch {
+            return null
+          }
+        }),
+      )
+
+      if (cancelled) return
+
+      let repaired = false
+      resolvedBooks.filter(Boolean).forEach((book) => {
+        updateLikedBookDetails(book)
+        repaired = true
+      })
+      if (repaired) refresh()
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [likedBooks, refresh])
+
   const [activeStatus, setActiveStatus] = useState(ReadingStatus.WANT_TO_READ)
 
   const booksInTab = useMemo(
-    () => library.filter((book) => book.status === activeStatus),
-    [library, activeStatus],
+    () =>
+      activeStatus === LIKED_TAB
+        ? likedBooks
+        : library.filter((book) => book.status === activeStatus),
+    [activeStatus, library, likedBooks],
   )
 
   const handleStatusChange = (bookId, status) => {
@@ -46,6 +100,22 @@ export default function Library() {
     refresh()
   }
 
+  const handleUnlike = (bookId) => {
+    toggleBookLike({ id: bookId })
+    refresh()
+  }
+
+  const emptyMessage =
+    activeStatus === LIKED_TAB
+      ? {
+          title: 'No liked books yet',
+          body: 'Like books from Home, Search, or Book Details to collect them here',
+        }
+      : {
+          title: 'No books in this category',
+          body: 'Start adding books to your library to see them here',
+        }
+
   return (
     <main className="min-h-[calc(100dvh-8rem)] bg-white px-6 pb-16 pt-8">
       <div className="mx-auto max-w-3xl">
@@ -57,7 +127,7 @@ export default function Library() {
         </header>
 
         <div className="mt-8 border-b border-slate-200">
-          <nav className="flex gap-8 sm:gap-10" aria-label="Library shelves">
+          <nav className="flex gap-6 overflow-x-auto sm:gap-10" aria-label="Library shelves">
             {TABS.map((tab) => {
               const isActive = activeStatus === tab.status
               return (
@@ -90,9 +160,9 @@ export default function Library() {
               <span className="text-slate-300" aria-hidden>
                 <BookshelfIcon className="h-20 w-20 sm:h-24 sm:w-24" />
               </span>
-              <p className="mt-6 text-lg font-semibold text-slate-700">No books in this category</p>
+              <p className="mt-6 text-lg font-semibold text-slate-700">{emptyMessage.title}</p>
               <p className="mt-2 max-w-sm text-sm text-slate-500">
-                Start adding books to your library to see them here
+                {emptyMessage.body}
               </p>
             </div>
           ) : (
@@ -103,7 +173,9 @@ export default function Library() {
                     book={book}
                     onToggleFavorite={handleToggleFavorite}
                     onStatusChange={handleStatusChange}
-                    onRemove={handleRemove}
+                    onRemove={activeStatus === LIKED_TAB ? handleUnlike : handleRemove}
+                    removeLabel={activeStatus === LIKED_TAB ? 'Unlike' : 'Remove'}
+                    showLibraryControls={activeStatus !== LIKED_TAB}
                   />
                 </li>
               ))}

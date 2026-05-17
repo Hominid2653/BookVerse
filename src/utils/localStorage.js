@@ -213,9 +213,57 @@ export function isBookLiked(bookId) {
   return entries.some((entry) => entry.id === bookId)
 }
 
+export function getLikedBooks() {
+  const { entries } = readLikesTaste()
+  const savedLibraryById = new Map(readLocalStorage().map((book) => [book.id, book]))
+
+  return entries.map((entry) => ({
+    id: entry.id,
+    title: entry.title || savedLibraryById.get(entry.id)?.title || 'Liked book',
+    author: entry.author || savedLibraryById.get(entry.id)?.author || 'Unknown Author',
+    image: entry.image || savedLibraryById.get(entry.id)?.image || '',
+    subjects: Array.isArray(entry.subjects)
+      ? entry.subjects
+      : Array.isArray(savedLibraryById.get(entry.id)?.subjects)
+        ? savedLibraryById.get(entry.id).subjects
+        : [],
+    topicKeys: Array.isArray(entry.topicKeys) ? entry.topicKeys : [],
+  }))
+}
+
+export function updateLikedBookDetails(book) {
+  if (!book?.id) return readLikesTaste()
+
+  const data = readLikesTaste()
+  let changed = false
+
+  data.entries = data.entries.map((entry) => {
+    if (entry.id !== book.id) return entry
+    changed = true
+    return {
+      ...entry,
+      title: book.title || entry.title || 'Liked book',
+      author: book.author || entry.author || 'Unknown Author',
+      image: book.image || entry.image || '',
+      subjects: Array.isArray(book.subjects)
+        ? book.subjects
+        : Array.isArray(entry.subjects)
+          ? entry.subjects
+          : [],
+    }
+  })
+
+  if (changed) {
+    writeLikesTaste(data)
+    notifyLikesTaste()
+  }
+
+  return data
+}
+
 /**
  * Like / unlike a book. Liked topics (from `subjects`) accumulate and steer the home recommendation query.
- * @param {{ id: string, subjects?: string[] }} book
+ * @param {{ id: string, title?: string, author?: string, image?: string, subjects?: string[] }} book
  */
 export function toggleBookLike(book) {
   const id = book?.id
@@ -243,7 +291,14 @@ export function toggleBookLike(book) {
       if (data.topicScores[key] <= 0) delete data.topicScores[key]
     }
   } else {
-    data.entries.push({ id, topicKeys })
+    data.entries.push({
+      id,
+      title: book.title || 'Liked book',
+      author: book.author || 'Unknown Author',
+      image: book.image || '',
+      subjects: rawSubjects,
+      topicKeys,
+    })
     for (const key of topicKeys) {
       data.topicScores[key] = (data.topicScores[key] || 0) + 1
     }

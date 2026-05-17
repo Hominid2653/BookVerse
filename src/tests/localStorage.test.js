@@ -1,6 +1,7 @@
 import {
   ReadingStatus,
   addBookToLibrary,
+  getLikedBooks,
   getRecommendationSearchQuery,
   getRecommendationSearchTerms,
   getSavedLibrary,
@@ -65,6 +66,9 @@ test('updates reading status, favorite state, and removal', () => {
 test('toggleBookLike stores liked books and builds a ranked recommendation query', () => {
   toggleBookLike({
     id: 'book-a',
+    title: 'A Wizard of Earthsea',
+    author: 'Ursula K. Le Guin',
+    image: 'https://example.com/earthsea.jpg',
     subjects: ['Fantasy', 'Magic', 'Fantasy'],
   })
   toggleBookLike({
@@ -74,6 +78,13 @@ test('toggleBookLike stores liked books and builds a ranked recommendation query
 
   // Subject scores are ranked and converted into recommendation search terms.
   expect(isBookLiked('book-a')).toBe(true)
+  expect(getLikedBooks()[0]).toMatchObject({
+    id: 'book-a',
+    title: 'A Wizard of Earthsea',
+    author: 'Ursula K. Le Guin',
+    image: 'https://example.com/earthsea.jpg',
+    subjects: ['Fantasy', 'Magic', 'Fantasy'],
+  })
   expect(hasTasteProfile()).toBe(true)
   expect(getRecommendationSearchQuery()).toBe('magic|adventure|fantasy')
   expect(getRecommendationSearchTerms()).toEqual(['magic', 'adventure', 'fantasy'])
