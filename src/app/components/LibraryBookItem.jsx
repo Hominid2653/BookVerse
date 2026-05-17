@@ -8,6 +8,8 @@ export default function LibraryBookItem({
   onToggleFavorite,
   onStatusChange,
   onRemove,
+  removeLabel = 'Remove',
+  showLibraryControls = true,
 }) {
   const isFavorite = Boolean(book.favorite)
 
@@ -49,57 +51,63 @@ export default function LibraryBookItem({
             }}
             className="min-w-[7.5rem] py-2"
           />
-          <label className="sr-only" htmlFor={`status-${book.id}`}>
-            Reading status for {book.title}
-          </label>
-          <select
-            id={`status-${book.id}`}
-            value={book.status}
-            onChange={(e) => onStatusChange(book.id, e.target.value)}
-            className="max-w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200 sm:text-sm"
-          >
-            {Object.values(ReadingStatus).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
+          {showLibraryControls && (
+            <>
+              <label className="sr-only" htmlFor={`status-${book.id}`}>
+                Reading status for {book.title}
+              </label>
+              <select
+                id={`status-${book.id}`}
+                value={book.status}
+                onChange={(e) => onStatusChange(book.id, e.target.value)}
+                className="max-w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200 sm:text-sm"
+              >
+                {Object.values(ReadingStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
 
-          <button
-            type="button"
-            onClick={() => onToggleFavorite(book.id)}
-            className={`inline-flex items-center justify-center rounded-full border p-2 transition ${
-              isFavorite
-                ? 'border-violet-500 bg-violet-50 text-violet-600'
-                : 'border-slate-200 bg-white text-slate-400 hover:border-violet-300 hover:text-violet-600'
-            }`}
-            aria-pressed={isFavorite}
-            aria-label={isFavorite ? 'Remove from favorites' : 'Mark as favorite read'}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-              {isFavorite ? (
-                <path
-                  fill="currentColor"
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                />
-              ) : (
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.65"
-                  strokeLinejoin="round"
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                />
-              )}
-            </svg>
-          </button>
+          {showLibraryControls && (
+            <button
+              type="button"
+              onClick={() => onToggleFavorite(book.id)}
+              className={`inline-flex items-center justify-center rounded-full border p-2 transition ${
+                isFavorite
+                  ? 'border-violet-500 bg-violet-50 text-violet-600'
+                  : 'border-slate-200 bg-white text-slate-400 hover:border-violet-300 hover:text-violet-600'
+              }`}
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? 'Remove from favorites' : 'Mark as favorite read'}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+                {isFavorite ? (
+                  <path
+                    fill="currentColor"
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
+                ) : (
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.65"
+                    strokeLinejoin="round"
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
+                )}
+              </svg>
+            </button>
+          )}
 
           <button
             type="button"
             onClick={() => onRemove(book.id)}
             className="ml-auto text-xs font-semibold text-slate-500 underline-offset-2 hover:text-red-600 hover:underline sm:text-sm"
           >
-            Remove
+            {removeLabel}
           </button>
         </div>
       </div>

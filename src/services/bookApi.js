@@ -57,7 +57,7 @@ function normalizeSearchResult(doc) {
 
 /**
  * @param {string} query
- * @param {number | { limit?: number, offset?: number }} [options] If a number, treated as `limit` with offset 0.
+ * @param {number | { limit?: number, offset?: number, searchBy?: 'q' | 'subject' }} [options] If a number, treated as `limit` with offset 0.
  * @returns {Promise<{ books: object[], hasMore: boolean, total: number }>}
  */
 async function searchBooks(query, options = {}) {
@@ -67,8 +67,10 @@ async function searchBooks(query, options = {}) {
 
   const limit = typeof options === 'number' ? options : (options.limit ?? 20)
   const offset = typeof options === 'number' ? 0 : (options.offset ?? 0)
+  const searchBy = typeof options === 'number' ? 'q' : (options.searchBy ?? 'q')
+  const searchParam = searchBy === 'subject' ? 'subject' : 'q'
 
-  const url = `${OPEN_LIBRARY_SEARCH_URL}?q=${encodeURIComponent(
+  const url = `${OPEN_LIBRARY_SEARCH_URL}?${searchParam}=${encodeURIComponent(
     query,
   )}&limit=${limit}&offset=${offset}`
   const response = await fetch(url)

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { searchBooks } from '../services/bookApi'
 
+const SEARCH_CACHE_TTL = 10 * 60 * 1000
+const searchCache = new Map()
+
 function mergeById(existing, incoming) {
   const seen = new Set(existing.map((b) => b.id))
   const next = [...existing]
@@ -11,6 +14,22 @@ function mergeById(existing, incoming) {
     }
   }
   return next
+}
+
+function getCacheKey(subject, pageSize) {
+  return `${subject.trim().toLowerCase()}::${pageSize}`
+}
+
+function readCachedSearch(cacheKey) {
+  const cached = searchCache.get(cacheKey)
+  if (!cached) return null
+
+  if (Date.now() - cached.cachedAt > SEARCH_CACHE_TTL) {
+    searchCache.delete(cacheKey)
+    return null
+  }
+
+  return cached
 }
 
 /**
@@ -37,22 +56,36 @@ export function useInfiniteBooks(subject, pageSize = 16) {
   useEffect(() => {
     subjectRef.current = subject
     offsetRef.current = 0
-    setBooks([])
     setHasMore(true)
     hasMoreRef.current = true
     setError(null)
 
     const q = subject?.trim()
     if (!q) {
+      setBooks([])
       setLoadingInitial(false)
       setHasMore(false)
       hasMoreRef.current = false
       return
     }
 
+    const cacheKey = getCacheKey(q, pageSize)
+    const cached = readCachedSearch(cacheKey)
+
+    if (cached) {
+      setBooks(cached.books)
+      offsetRef.current = cached.offset
+      setHasMore(cached.hasMore)
+      hasMoreRef.current = cached.hasMore
+      setLoadingInitial(false)
+      return
+    } else {
+      setBooks([])
+      setLoadingInitial(true)
+    }
+
     let cancelled = false
     inFlightRef.current = true
-    setLoadingInitial(true)
 
     ;(async () => {
       try {
@@ -65,12 +98,20 @@ export function useInfiniteBooks(subject, pageSize = 16) {
         offsetRef.current = first.length
         setHasMore(more)
         hasMoreRef.current = more
+        searchCache.set(cacheKey, {
+          books: first,
+          hasMore: more,
+          offset: first.length,
+          cachedAt: Date.now(),
+        })
       } catch (e) {
         if (!cancelled && subjectRef.current === subject) {
           setError(e)
-          setBooks([])
-          setHasMore(false)
-          hasMoreRef.current = false
+          if (!cached) {
+            setBooks([])
+            setHasMore(false)
+            hasMoreRef.current = false
+          }
         }
       } finally {
         if (!cancelled && subjectRef.current === subject) {
@@ -110,6 +151,12 @@ export function useInfiniteBooks(subject, pageSize = 16) {
       offsetRef.current += batch.length
       setHasMore(more)
       hasMoreRef.current = more
+      searchCache.set(getCacheKey(q, pageSize), {
+        books: mergeById(searchCache.get(getCacheKey(q, pageSize))?.books ?? [], batch),
+        hasMore: more,
+        offset: offsetRef.current,
+        cachedAt: Date.now(),
+      })
     } catch (e) {
       setError(e)
     } finally {
