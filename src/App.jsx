@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './app/components/Navbar'
 import Home from './app/pages/Home'
+import About from './app/pages/About'
 import SearchResults from './app/pages/SearchResults'
 import BookDetails from './app/pages/BookDetails'
 import BookPreview from './app/pages/BookPreview'
@@ -15,6 +16,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/book/:id/preview" element={<BookPreview />} />
           <Route path="/book/:id" element={<BookDetails />} />

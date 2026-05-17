@@ -84,6 +84,12 @@ export default function Navbar() {
           >
             Library
           </NavLink>
+          <NavLink
+            to="/about"
+            className={navLinkClass}
+          >
+            About
+          </NavLink>
         </nav>
       </div>
 
@@ -145,6 +151,9 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/library" className={mobileNavLinkClass}>
               Library
+            </NavLink>
+            <NavLink to="/about" className={mobileNavLinkClass}>
+              About
             </NavLink>
           </nav>
 

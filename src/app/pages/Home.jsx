@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
+import AboutButton from '../components/AboutButton'
 import BookList from '../components/BookList'
 import { searchBooks } from '../../services/bookApi'
 import {
@@ -128,6 +129,9 @@ export default function Home() {
             Your &ldquo;Recommended for you&rdquo; picks follow subjects from books you&apos;ve liked.
           </p>
         )}
+        <div>
+          <AboutButton />
+        </div>
       </div>
 
       <BookList
